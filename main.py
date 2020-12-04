@@ -95,7 +95,7 @@ if __name__ == '__main__':
     # %%
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    log_file = 'log.txt'
+    log_file = 'cahce/log.txt'
     lf = logging.FileHandler(log_file, mode='w')
     lf.setLevel(logging.DEBUG)
     formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
@@ -106,8 +106,8 @@ if __name__ == '__main__':
 
     # 加载数据
     path = os.getcwd()
-    files = os.listdir(path)
-    if 'cache/traintest.h5' in files:
+    files = os.listdir(os.path.join(path, 'cache'))
+    if 'traintest.h5' in files:
         X_train, Y_train, X_test, Y_test, mmn, external_dim, timestamp_train, timestamp_test = loadFromh5()
     else:
         X_train, Y_train, X_test, Y_test, mmn, external_dim, timestamp_train, timestamp_test = load_data(

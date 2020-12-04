@@ -55,7 +55,7 @@ def loadFromh5():
     external_dim = f['external_dim'].value
     timestamp_train = f['timestamp_train'].value
     timestamp_test = f['timestamp_test'].value
-    mmn = pickle.load(open('preprocessing.pkl', 'rb'))
+    mmn = pickle.load(open('cache/preprocessing.pkl', 'rb'))
     return X_train, Y_train, X_test, Y_test, mmn, external_dim, timestamp_train, timestamp_test
     
 def evaluate_model(model,loss,data_iter):
