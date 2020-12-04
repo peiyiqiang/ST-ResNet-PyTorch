@@ -95,7 +95,7 @@ if __name__ == '__main__':
     # %%
     logger = logging.getLogger()
     logger.setLevel(logging.INFO)
-    log_file = 'cahce/log.txt'
+    log_file = 'cache/log.txt'
     lf = logging.FileHandler(log_file, mode='w')
     lf.setLevel(logging.DEBUG)
     formatter = logging.Formatter("%(asctime)s - %(filename)s[line:%(lineno)d] - %(levelname)s: %(message)s")
