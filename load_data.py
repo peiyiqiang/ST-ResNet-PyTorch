@@ -95,7 +95,7 @@ def remove_incomplete_days(data,timestamps,T):
 
 # %%
 def load_data(T=48, nb_flow=2, len_closeness=None, len_period=None, len_trend=None,
-              len_test=7*4*48, preprocess_name='preprocessing.pkl',
+              len_test=7*4*48, preprocess_name='cache/preprocessing.pkl',
               meta_data=True, meteorol_data=True, holiday_data=True):
     data_all = []
     timestamps_all = []
