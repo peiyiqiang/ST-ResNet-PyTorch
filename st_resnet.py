@@ -65,13 +65,13 @@ class ST_ResNet(nn.Module):
     def __init__(self,c_conf=(3,2,32,32),p_conf=(1,2,32,32),t_conf=(1,2,32,32),external_dim=8,nb_residual_unit=3):
         super(ST_ResNet,self).__init__()
         nb_flow,map_width,map_height = t_conf[1],t_conf[2],t_conf[3]
-        self.closeness = ResConvUnits(c_conf[0]*c_conf[1],nb_residual_unit)
-        self.period = ResConvUnits(p_conf[0]*p_conf[1],nb_residual_unit)
-        self.trend = ResConvUnits(t_conf[0]*t_conf[1],nb_residual_unit)
-        
-        self.WC = nn.Parameter(torch.randn((1,nb_flow,c_conf[2],c_conf[3]),requires_grad=True))
-        self.WP = nn.Parameter(torch.randn((1,nb_flow,p_conf[2],p_conf[3]),requires_grad=True))
-        self.WT = nn.Parameter(torch.randn((1,nb_flow,t_conf[2],t_conf[3]),requires_grad=True))
+        # self.closeness = ResConvUnits(c_conf[0]*c_conf[1],nb_residual_unit)
+        # self.period = ResConvUnits(p_conf[0]*p_conf[1],nb_residual_unit)
+        # self.trend = ResConvUnits(t_conf[0]*t_conf[1],nb_residual_unit)
+        #
+        # self.WC = nn.Parameter(torch.randn((1,nb_flow,c_conf[2],c_conf[3]),requires_grad=True))
+        # self.WP = nn.Parameter(torch.randn((1,nb_flow,p_conf[2],p_conf[3]),requires_grad=True))
+        # self.WT = nn.Parameter(torch.randn((1,nb_flow,t_conf[2],t_conf[3]),requires_grad=True))
 
         #self.external = External(external_dim)
         
@@ -82,22 +82,25 @@ class ST_ResNet(nn.Module):
             ('relu2', nn.ReLU())
             ]))
         #print(self.external)
+
+        self.res_conv_unit = ResConvUnits(nb_flow * (c_conf[0]+p_conf[0]*2+t_conf[0]*2+1), nb_residual_unit)
+
     def forward(self,x):
-        x_c,x_p,x_t,x_e = x[0],x[1],x[2],x[3]
-        out1 = self.closeness(x_c)
-        out2 = self.period(x_p)
-        out3 = self.trend(x_t)
-        out = torch.mul(out1,self.WC)+torch.mul(out2,self.WP)+torch.mul(out3,self.WT)
+        x_cpt,x_e = x[0],x[1]
         ext = self.external(x_e).unsqueeze(2).unsqueeze(3)
         ext = torch.repeat_interleave(ext, repeats=32, dim=2)
         ext = torch.repeat_interleave(ext, repeats=32, dim=3)
+
+        x_cpt = torch.cat((x_cpt, ext), 1)
+
+        ret = self.res_conv_unit(x_cpt)
+
     #ext.shape = ()
         #print("out:",out.shape,"ext:",ext.shape)
         # return 1
         # print(ext.shape,out.shape)
-        ret = ext+out
-        
-        
+        # ret = ext+out
+
         return F.tanh(ret)
 
 # %%

@@ -120,16 +120,21 @@ def load_data(T=48, nb_flow=2, len_closeness=None, len_period=None, len_trend=No
     pickle.dump(scaler,fpkl)
     fpkl.close()
     
-    XC,XP,XT = [],[],[]
+    # XC,XP,XT = [],[],[]
+    XCPT = []
     Y = []
     timestamps_Y = []
     for data,timestamps in zip(data_all_mmn,timestamps_all):
         st = STMatrix(data,timestamps,T,CheckComplete=False)
         _XC,_XP,_XT,_Y,_timestamps_Y = st.create_dataset(
             len_closeness=len_closeness,len_period=len_period,len_trend=len_trend)
-        XC.append(_XC)
-        XP.append(_XP)
-        XT.append(_XT)
+        # XC.append(_XC)
+        # XP.append(_XP)
+        # XT.append(_XT)
+        _XCPT = np.concatenate((_XC, _XP), axis=1)
+        _XCPT = np.concatenate((_XCPT, _XT), axis=1)
+        XCPT.append(_XCPT)
+
         Y.append(_Y)
         timestamps_Y+=_timestamps_Y
     
@@ -154,37 +159,59 @@ def load_data(T=48, nb_flow=2, len_closeness=None, len_period=None, len_trend=No
         print('time feature:', time_feature.shape, 'holiday feature:', holiday_feature.shape,
               'meteorol feature: ', meteorol_feature.shape, 'mete feature: ', meta_feature.shape)
     
-    XC = np.vstack(XC)
-    XP = np.vstack(XP)
-    XT = np.vstack(XT)
+    # XC = np.vstack(XC)
+    # XP = np.vstack(XP)
+    # XT = np.vstack(XT)
+    XCPT = np.vstack(XCPT)
     Y = np.vstack(Y)
-    print("XC shape: ", XC.shape, "XP shape: ", XP.shape,
-          "XT shape: ", XT.shape, "Y shape:", Y.shape)
+    # print("XC shape: ", XC.shape, "XP shape: ", XP.shape,
+    #       "XT shape: ", XT.shape, "Y shape:", Y.shape)
     
-    XC_train, XP_train, XT_train, Y_train = XC[
-        :-len_test], XP[:-len_test], XT[:-len_test], Y[:-len_test]
-    XC_test, XP_test, XT_test, Y_test = XC[
-        -len_test:], XP[-len_test:], XT[-len_test:], Y[-len_test:]
-    timestamp_train, timestamp_test = timestamps_Y[
-        :-len_test], timestamps_Y[-len_test:]
+    # XC_train, XP_train, XT_train, Y_train = XC[
+    #     :-len_test], XP[:-len_test], XT[:-len_test], Y[:-len_test]
+    # XC_test, XP_test, XT_test, Y_test = XC[
+    #     -len_test:], XP[-len_test:], XT[-len_test:], Y[-len_test:]
+    # timestamp_train, timestamp_test = timestamps_Y[
+    #     :-len_test], timestamps_Y[-len_test:]
     
-    X_train = []
-    X_test = []
-    for l, X_ in zip([len_closeness, len_period, len_trend], [XC_train, XP_train, XT_train]):
-        if l > 0:
-            X_train.append(X_)
-    for l, X_ in zip([len_closeness, len_period, len_trend], [XC_test, XP_test, XT_test]):
-        if l > 0:
-            X_test.append(X_)
-    print('train shape:', XC_train.shape, Y_train.shape,
-          'test shape: ', XC_test.shape, Y_test.shape)
+    # X_train = []
+    # X_test = []
+    # for l, X_ in zip([len_closeness, len_period, len_trend], [XC_train, XP_train, XT_train]):
+    #     if l > 0:
+    #         X_train.append(X_)
+    # for l, X_ in zip([len_closeness, len_period, len_trend], [XC_test, XP_test, XT_test]):
+    #     if l > 0:
+    #         X_test.append(X_)
+    # print('train shape:', XC_train.shape, Y_train.shape,
+    #       'test shape: ', XC_test.shape, Y_test.shape)
+
+    XCPT_train, Y_train = XCPT[:-len_test], Y[:-len_test]
+    XCPT_test, Y_test = XCPT[-len_test:], Y[-len_test:]
+
+    timestamp_train, timestamp_test = timestamps_Y[:-len_test], timestamps_Y[-len_test:]
+
+    X_train, X_test = [], []
+
+    X_train.append(XCPT_train)
+    X_test.append(XCPT_test)
     
     if metadata_dim is not None:
-        meta_feature_train,meta_feature_test = meta_feature[:-len_test],meta_feature[-len_test:]
+        # meta_feature_train,meta_feature_test = meta_feature[:-len_test],meta_feature[-len_test:]
+        # X_train.append(meta_feature_train)
+        # X_test.append(meta_feature_test)
+
+        meta_feature_train, meta_feature_test = meta_feature[:-len_test], meta_feature[-len_test:]
         X_train.append(meta_feature_train)
         X_test.append(meta_feature_test)
-    
+
+    for _X in X_train:
+        print(_X.shape, )
+    print()
+    for _X in X_test:
+        print(_X.shape, )
+    print()
     return X_train,Y_train,X_test,Y_test,scaler,metadata_dim,timestamp_train,timestamp_test
+
   
 
 

@@ -108,6 +108,7 @@ if __name__ == '__main__':
     path = os.getcwd()
     files = os.listdir(os.path.join(path, 'cache'))
     if 'traintest.h5' in files:
+        print("read cache")
         X_train, Y_train, X_test, Y_test, mmn, external_dim, timestamp_train, timestamp_test = loadFromh5()
     else:
         X_train, Y_train, X_test, Y_test, mmn, external_dim, timestamp_train, timestamp_test = load_data(

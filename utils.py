@@ -31,7 +31,7 @@ def timestamp2vec(timestamps):
 
 def saveToh5(X_train, Y_train, X_test, Y_test, external_dim, timestamp_train, timestamp_test):
     f = h5py.File('cache/traintest.h5','w')
-    for i in range(4):
+    for i in range(2):
         f.create_dataset('X_train_'+str(i),data=X_train[i])
         f.create_dataset('X_test_'+str(i),data=X_test[i])
     f.create_dataset('Y_train',data=Y_train)
@@ -47,7 +47,7 @@ def loadFromh5():
     X_train = []
     X_test = []
     f = h5py.File('cache/traintest.h5','r')
-    for i in range(4):
+    for i in range(2):
         X_train.append(f['X_train_'+str(i)].value)
         X_test.append(f['X_test_'+str(i)].value)
     Y_test = f['Y_test'].value

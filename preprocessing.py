@@ -71,13 +71,19 @@ class STMatrix(object):
         XT = []
         Y = []
         timestamps_Y = []
+
+        C_in_P = 2
+        C_in_T = 2
+
         '''
         depends = [[1,2,3],48*[1,2,3],48*7*[1,2,3]]
         '''
         depends = [range(1,len_closeness+1),
-                   [PeriodInterval*self.T*j for j in range(1,len_period+1)],
-                   [TrendInterval*self.T*j for j in range(1,len_trend+1)]]
-        i = max(len_closeness,self.T*TrendInterval*len_trend,self.T*PeriodInterval*len_period)
+                   # [PeriodInterval*self.T*j for j in range(1,len_period+1)],
+                   # [TrendInterval*self.T*j for j in range(1,len_trend+1)]]
+                   [i + PeriodInterval * self.T * j for j in range(1, len_period + 1) for i in range(0, C_in_P)],
+                   [i + TrendInterval * self.T * j for j in range(1, len_trend + 1) for i in range(0, C_in_T)]]
+        i = max(len_closeness,self.T*PeriodInterval*len_period+C_in_P-1,self.T*TrendInterval*len_trend+C_in_T-1)
         while i < len(self.pd_timestamps):
             flag = True
             for depend in depends:
@@ -110,12 +116,15 @@ class STMatrix(object):
 # %%
 class STDataSets(Dataset):
     def __init__(self,x,y,device):
-        self.xc = torch.from_numpy(np.array(x[0],dtype=np.float32)).to(device)
-        self.xp = torch.from_numpy(np.array(x[1],dtype=np.float32)).to(device)
-        self.xt = torch.from_numpy(np.array(x[2],dtype=np.float32)).to(device)
-        self.ex = torch.from_numpy(np.array(x[3],dtype=np.float32)).to(device)
+        self.xcpt = torch.from_numpy(np.array(x[0],dtype=np.float32)).to(device)
+        # self.xp = torch.from_numpy(np.array(x[1],dtype=np.float32)).to(device)
+        # self.xt = torch.from_numpy(np.array(x[2],dtype=np.float32)).to(device)
+        self.ex = torch.from_numpy(np.array(x[1],dtype=np.float32)).to(device)
         self.y = torch.from_numpy(np.array(y,dtype=np.float32)).to(device)
+
     def __getitem__(self,idx):
-        return [self.xc[idx],self.xp[idx],self.xt[idx],self.ex[idx]],self.y[idx]
+        # return [self.xc[idx],self.xp[idx],self.xt[idx],self.ex[idx]],self.y[idx]
+        return [self.xcpt[idx], self.ex[idx]], self.y[idx]
+
     def __len__(self):
         return len(self.y)
